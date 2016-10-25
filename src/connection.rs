@@ -456,9 +456,20 @@ impl<H> Connection<H>
             let response = try!(try!(Response::parse(res.get_ref())).ok_or(
                 Error::new(Kind::Internal, "Failed to parse response after handshake is complete.")));
 
-            if response.status() != 101 {
+            let is_connect = request.method() == "CONNECT";
+
+            if response.status() != 101 && !is_connect {
                 self.events = EventSet::none();
                 return Ok(())
+            } else if response.status() == 200 && is_connect {
+                debug!("Proxy-Connection to {} is now open.", self.peer_addr());
+                self.events.insert(EventSet::readable());
+                self.events.remove(EventSet::writable());
+                self.state = Connecting(
+                  Cursor::new(Vec::with_capacity(2048)),
+                  Cursor::new(Vec::with_capacity(2048)),
+                );
+                return Ok(());
             } else {
                 try!(self.handler.on_open(Handshake {
                     request: request,
@@ -524,10 +535,20 @@ impl<H> Connection<H>
             trace!("Handshake response received: \n{}", response);
 
             if response.status() != 101 {
+                let is_connect = request.method() == "CONNECT";
+
                 if response.status() != 301 && response.status() != 302 {
                     return Err(Error::new(Kind::Protocol, "Handshake failed."));
+                // We are just opening proxy connection
+                } else if response.status() == 200 && is_connect {
+                    // Handshake can still go after that, so move back to Connecting state.
+                    self.state = Connecting(
+                        Cursor::new(Vec::with_capacity(2048)),
+                        Cursor::new(Vec::with_capacity(2048)),
+                    );
+                    return Ok(());
                 } else {
-                    return Ok(())
+                    return Ok(());
                 }
             }
 
