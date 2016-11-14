@@ -117,6 +117,10 @@ impl<H> Connection<H>
         }
     }
 
+    pub fn is_closing(&self) -> bool {
+        self.state.is_closing()
+    }
+
     pub fn as_server(&mut self) -> Result<()> {
         Ok(self.events.insert(EventSet::readable()))
     }
