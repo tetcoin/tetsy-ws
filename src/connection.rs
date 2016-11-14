@@ -117,6 +117,10 @@ impl<H> Connection<H>
         }
     }
 
+    pub fn is_closing(&self) -> bool {
+        self.state.is_closing()
+    }
+
     pub fn as_server(&mut self) -> Result<()> {
         Ok(self.events.insert(EventSet::readable()))
     }
@@ -947,7 +951,7 @@ impl<H> Connection<H>
             // We are initiating a closing handshake.
             Open => self.state = AwaitingClose,
             Connecting(_, _) => {
-                warn!("Attempted to close connection while not yet open.");
+                debug!("Attempted to close connection while not yet open.");
                 return Ok(())
             }
         }

@@ -44,6 +44,7 @@ fn url_to_addrs(url: &Url) -> Result<Vec<SocketAddr>> {
     Ok(addrs)
 }
 
+#[derive(Debug)]
 enum State {
     Active,
     Inactive,
@@ -325,7 +326,6 @@ impl<F> mio::Handler for Handler <F>
     type Message = Command;
 
     fn ready(&mut self, eloop: &mut Loop<F>, token: Token, events: EventSet) {
-
         match token {
             SYSTEM => {
                 debug_assert!(false, "System token used for io event. This is a bug!");
@@ -431,6 +431,14 @@ impl<F> mio::Handler for Handler <F>
                         let handler = self.connections.remove(token).unwrap().consume();
                         self.factory.connection_lost(handler);
                     } else {
+                        {
+                            let mut connection = &mut self.connections[token];
+                            // Force close connections while in inactive state.
+                            if !self.state.is_active() && !connection.is_closing() {
+                                connection.shutdown();
+                            }
+                        }
+
                         self.schedule(eloop, &self.connections[token]).or_else(|err| {
                             // This will be an io error, so disconnect will already be called
                             self.connections[token].error(Error::from(err));
