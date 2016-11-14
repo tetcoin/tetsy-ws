@@ -71,9 +71,11 @@ impl Sender {
     pub fn send<M>(&self, msg: M) -> Result<()>
         where M: Into<message::Message>
     {
+        let msg = msg.into();
+        debug!(target: "ws_comm", "Send: {}", msg);
         self.channel.send(Command {
             token: self.token,
-            signal: Signal::Message(msg.into()),
+            signal: Signal::Message(msg),
         }).map_err(Error::from)
     }
 
@@ -88,15 +90,18 @@ impl Sender {
     pub fn broadcast<M>(&self, msg: M) -> Result<()>
         where M: Into<message::Message>
     {
+        let msg = msg.into();
+        debug!(target: "ws_comm", "Broadcast: {}", msg);
         self.channel.send(Command {
             token: ALL,
-            signal: Signal::Message(msg.into()),
+            signal: Signal::Message(msg),
         }).map_err(Error::from)
     }
 
     /// Send a close code to the other endpoint.
     #[inline]
     pub fn close(&self, code: CloseCode) -> Result<()> {
+        debug!(target: "ws_comm", "Close: {:?}", code);
         self.channel.send(Command {
             token: self.token,
             signal: Signal::Close(code, "".into()),
@@ -108,15 +113,18 @@ impl Sender {
     pub fn close_with_reason<S>(&self, code: CloseCode, reason: S) -> Result<()>
         where S: Into<Cow<'static, str>>
     {
+        let reason = reason.into();
+        debug!(target: "ws_comm", "Close: {:?} reason: {}", code, reason);
         self.channel.send(Command {
             token: self.token,
-            signal: Signal::Close(code, reason.into()),
+            signal: Signal::Close(code, reason),
         }).map_err(Error::from)
     }
 
     /// Send a ping to the other endpoint with the given test data.
     #[inline]
     pub fn ping(&self, data: Vec<u8>) -> Result<()> {
+        debug!(target: "ws_comm", "Ping: {:?}", data);
         self.channel.send(Command {
             token: self.token,
             signal: Signal::Ping(data),
@@ -126,6 +134,7 @@ impl Sender {
     /// Send a pong to the other endpoint responding with the given test data.
     #[inline]
     pub fn pong(&self, data: Vec<u8>) -> Result<()> {
+        debug!(target: "ws_comm", "Pong: {:?}", data);
         self.channel.send(Command {
             token: self.token,
             signal: Signal::Pong(data),
@@ -135,6 +144,7 @@ impl Sender {
     /// Queue a new connection on this WebSocket to the specified URL.
     #[inline]
     pub fn connect(&self, url: url::Url) -> Result<()> {
+        debug!(target: "ws_comm", "Connect: {:?}", url);
         self.channel.send(Command {
             token: self.token,
             signal: Signal::Connect(url),
@@ -144,6 +154,7 @@ impl Sender {
     /// Request that all connections terminate and that the WebSocket stop running.
     #[inline]
     pub fn shutdown(&self) -> Result<()> {
+        debug!(target: "ws_comm", "Shutdown.");
         self.channel.send(Command {
             token: self.token,
             signal: Signal::Shutdown,
@@ -154,6 +165,7 @@ impl Sender {
     /// after `ms` milliseconds
     #[inline]
     pub fn timeout(&self, ms: u64, token: Token) -> Result<()> {
+        debug!(target: "ws_comm", "Timeout: {} token: {:?}", ms, token);
         self.channel.send(Command {
             token: self.token,
             signal: Signal::Timeout {
@@ -170,6 +182,7 @@ impl Sender {
     /// handle spurious timeouts.
     #[inline]
     pub fn cancel(&self, timeout: mio::Timeout) -> Result<()> {
+        debug!(target: "ws_comm", "Cancel timeout.");
         self.channel.send(Command {
             token: self.token,
             signal: Signal::Cancel(timeout),
