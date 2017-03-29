@@ -3,12 +3,8 @@ use std::net::{SocketAddr, ToSocketAddrs};
 use std::borrow::Borrow;
 
 use mio;
-use mio::{
-    Token,
-    EventLoop,
-    EventSet,
-    PollOpt,
-};
+use mio::{Token, PollOpt, Ready};
+use mio::deprecated::EventLoop;
 use mio::tcp::{TcpListener, TcpStream};
 use url::Url;
 
@@ -28,7 +24,6 @@ const CONN_START: Token = Token(2);
 
 pub type Loop<F> = EventLoop<Handler<F>>;
 type Conn<F> = Connection<<F as Factory>::Handler>;
-type Chan = mio::Sender<Command>;
 
 fn url_to_addrs(url: &Url) -> Result<Vec<SocketAddr>> {
 
@@ -97,7 +92,7 @@ impl<F> Handler<F>
 
         let tcp = try!(TcpListener::bind(addr));
         // TODO: consider net2 in order to set reuse_addr
-        try!(eloop.register(&tcp, ALL, EventSet::readable(), PollOpt::level()));
+        try!(eloop.register(&tcp, ALL, Ready::readable(), PollOpt::level()));
         self.listener = Some(tcp);
         Ok(self)
     }
@@ -319,13 +314,13 @@ impl<F> Handler<F>
 
 }
 
-impl<F> mio::Handler for Handler <F>
+impl<F> mio::deprecated::Handler for Handler <F>
     where F: Factory
 {
     type Timeout = Timeout;
     type Message = Command;
 
-    fn ready(&mut self, eloop: &mut Loop<F>, token: Token, events: EventSet) {
+    fn ready(&mut self, eloop: &mut Loop<F>, token: Token, events: Ready) {
         match token {
             SYSTEM => {
                 debug_assert!(false, "System token used for io event. This is a bug!");
@@ -335,7 +330,7 @@ impl<F> mio::Handler for Handler <F>
                 if events.is_readable() {
                     if let Some((sock, addr)) = {
                             match self.listener.as_ref().expect("No listener provided for server websocket connections").accept() {
-                                Ok(inner) => inner,
+                                Ok(inner) => Some(inner),
                                 Err(err) => {
                                     error!("Encountered an error {:?} while accepting tcp connection.", err);
                                     None
@@ -359,7 +354,7 @@ impl<F> mio::Handler for Handler <F>
             _ => {
                 if events.is_error() {
                     trace!("Encountered error on tcp stream.");
-                    if let Err(err) = self.connections[token].socket().take_socket_error() {
+                    if let Err(err) = self.connections[token].socket().take_error() {
                         trace!("Error was {}", err);
                         if let Some(errno) = err.raw_os_error() {
                             if errno == 111 {

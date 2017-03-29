@@ -5,7 +5,7 @@ use std::default::Default;
 use std::iter::FromIterator;
 
 use rand;
-use bytes::MutBuf;
+use bytes::BufMut;
 use result::{Result, Error, Kind};
 use protocol::{OpCode, CloseCode};
 
@@ -472,16 +472,16 @@ payload: 0x{}
     }
 }
 
-fn try_read_buf<B : MutBuf>(source: &mut Cursor<Vec<u8>>, buf: &mut B) -> io::Result<Option<usize>> {
-    // Reads the length of the slice supplied by buf.mut_bytes into the buffer
+fn try_read_buf<B : BufMut>(source: &mut Cursor<Vec<u8>>, buf: &mut B) -> io::Result<Option<usize>> {
+    // Reads the length of the slice supplied by buf.bytes_mut into the buffer
     // This is not guaranteed to consume an entire datagram or segment.
     // If your protocol is msg based (instead of continuous stream) you should
     // ensure that your buffer is large enough to hold an entire segment (1532 bytes if not jumbo
     // frames)
-    let res = source.read(unsafe { buf.mut_bytes() });
+    let res = source.read(unsafe { buf.bytes_mut() });
 
     if let Ok(cnt) = res {
-        unsafe { buf.advance(cnt); }
+        unsafe { buf.advance_mut(cnt); }
     }
 
     res.map(Some)

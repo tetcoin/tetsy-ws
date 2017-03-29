@@ -47,7 +47,7 @@ pub use handshake::{Handshake, Request, Response};
 use std::fmt;
 use std::default::Default;
 use std::net::ToSocketAddrs;
-use mio::EventLoopBuilder;
+use mio::deprecated::EventLoopBuilder;
 use std::borrow::Borrow;
 
 /// A utility function for setting up a WebSocket server.
