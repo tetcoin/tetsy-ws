@@ -16,7 +16,7 @@ rand = "0.3.14"
 sha1 = "0.2.0"
 url = "1.2.0"
 # Warning! Using dev branch (we need https://github.com/carllerche/mio/pull/444 for windows support)
-mio = { git = "https://github.com/ethcore/mio", branch = "timer-fix" }
+mio = { git = "https://github.com/paritytech/mio" }
 slab = { git = "https://github.com/carllerche/slab", rev = "5476efcafb"}
 bytes = { git = "https://github.com/carllerche/bytes" } 
 
