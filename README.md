@@ -10,9 +10,10 @@ listen("127.0.0.1:3012", |out| {
     }
 })
 ```
+
 # This fork
 
-Note this is (hopefuly) temporary fork of the original crate until https://github.com/housleyjk/ws-rs/pull/252 gets merged.
+Note this is (hopefuly) a temporary fork of the original crate until https://github.com/housleyjk/ws-rs/pull/328 gets merged.
 
 Introduction
 ------------
