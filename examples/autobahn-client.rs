@@ -1,5 +1,5 @@
 /// WebSocket client used for testing against the Autobahn Test Suite
-extern crate parity_ws as ws;
+extern crate tetsy_ws as ws;
 
 use std::cell::Cell;
 use std::rc::Rc;

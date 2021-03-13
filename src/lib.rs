@@ -65,7 +65,7 @@ use mio::Poll;
 /// # Examples
 ///
 /// ```no_run
-/// use parity_ws::listen;
+/// use tetsy_ws::listen;
 ///
 /// listen("127.0.0.1:3012", |out| {
 ///     move |msg| {
@@ -96,7 +96,7 @@ where
 /// # Examples
 ///
 /// ```no_run
-/// use parity_ws::{connect, CloseCode};
+/// use tetsy_ws::{connect, CloseCode};
 ///
 /// connect("ws://127.0.0.1:3012", |out| {
 ///     out.send("Hello WebSocket").unwrap();

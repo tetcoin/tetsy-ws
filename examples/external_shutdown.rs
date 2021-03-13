@@ -1,4 +1,4 @@
-extern crate parity_ws as ws;
+extern crate tetsy_ws as ws;
 
 use std::sync::mpsc::channel;
 use std::thread;

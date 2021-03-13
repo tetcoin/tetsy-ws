@@ -1,5 +1,5 @@
 /// Example showing how to obtain the ip address of the client, where possible.
-extern crate parity_ws as ws;
+extern crate tetsy_ws as ws;
 
 struct Server {
     ws: ws::Sender,
