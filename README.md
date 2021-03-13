@@ -1,4 +1,4 @@
-# WS-RS
+# tetsy-ws
 
 Lightweight, event-driven WebSockets for [Rust](https://www.rust-lang.org).
 ```rust
