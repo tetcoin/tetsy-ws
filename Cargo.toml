@@ -1,7 +1,7 @@
 [package]
 authors = ["Jason Housley <HousleyJK@gmail.com>"]
-description = "Lightweight, event-driven WebSockets for Rust."
-documentation = "https://ws-rs.org/docs"
+description = "Tetsy Lightweight, event-driven WebSockets for Rust."
+documentation = "https://docs.rs/tetsy-ws"
 keywords = [
     "websocket",
     "mio",
@@ -10,9 +10,10 @@ keywords = [
     "web",
 ]
 license = "MIT"
-name = "parity-ws"
+name = "tetsy-ws"
 readme = "README.md"
-repository = "https://github.com/paritytech/ws-rs"
+homepage = "https://core.tetcoin.org"
+repository = "https://github.com/tetcoin/tetsy-ws"
 version = "0.10.0"
 
 [dependencies]
